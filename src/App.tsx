@@ -1,4 +1,4 @@
-import {useState} from "react";
+import { useState } from "react";
 
 function TextInput() {
   const [text, setText] = useState("");
@@ -10,10 +10,24 @@ function TextInput() {
   );
 }
 
+function ListFilter() {
+  const [text, setText] = useState("");
+  const members = ["asa-taka", "yamada", "suzuki"];
+  const filteredMembers = members.filter((member) => member.includes(text));
+  return (
+    <div>
+      <input type="text" value={text} onChange={(event) => setText(event.target.value)} />
+      {filteredMembers.map((member) => (
+        <p key={member}>{member}</p>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <div className="App">
-      <TextInput />
+      <ListFilter />
     </div>
   );
 }
