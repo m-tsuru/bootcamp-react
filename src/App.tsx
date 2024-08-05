@@ -1,19 +1,19 @@
 import {useState} from "react";
 
-function Counter() {
-  const [count, useUnko] = useState(0);
+function TextInput() {
+  const [text, setText] = useState("");
   return (
     <div>
-      <button onClick={() => useUnko(count + 1)}>+1</button>
-      <p>count: {count}</p>
+      <input type="text" value={text} onChange={(event) => setText(event.target.value)}/>
+      <p>input: {text}</p>
     </div>
-  )
+  );
 }
 
 export default function App() {
   return (
     <div className="App">
-      <Counter />
+      <TextInput />
     </div>
-  )
+  );
 }
