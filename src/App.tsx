@@ -1,25 +1,19 @@
-type HelloProps = {
-  yourName: string
+import {useState} from "react";
+
+function Counter() {
+  const [count, useUnko] = useState(0);
+  return (
+    <div>
+      <button onClick={() => useUnko(count + 1)}>+1</button>
+      <p>count: {count}</p>
+    </div>
+  )
 }
 
-
-function Hello({ yourName }: HelloProps) { // 子コンポーネント
-  if (yourName.length > 5) {
-    return (
-      <p>
-        こんにちは、<b>{yourName}!</b>
-      </p>
-    );
-  }
-}
-
-export default function App() { // 親コンポーネント
-  const members = ["asa-taka", "igarashi", "ueda"]
+export default function App() {
   return (
     <div className="App">
-      {members.map((member) => (
-        <Hello key={member} yourName={member}/>
-      ))}
+      <Counter />
     </div>
-  );
+  )
 }
