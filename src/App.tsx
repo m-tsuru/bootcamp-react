@@ -63,20 +63,23 @@ const INITIAL_TODO: TodoItem[] = [
 
 const generateId = () => Date.now();
 
-export default function App() {
+const useTodoState = () => {
   const [todoItems, setTodoItems] = useState(INITIAL_TODO);
-  const [keyword, setKeyword] = useState<string>("");
-  const [showingDone, setShowingDone] = useState<boolean>(true);
-
   const createItem = (text: string) => {
-    setTodoItems([...todoItems, { id: generateId(), text, done: false }]);
+    setTodoItems([...todoItems, {id: generateId(), text, done: false}]);
   };
-
   const updateItem = (newItem: TodoItem) => {
     setTodoItems(
       todoItems.map((item) => (item.id === newItem.id ? newItem : item))
     );
   };
+  return [todoItems, createItem, updateItem] as const;
+};
+
+export default function App() {
+  const [todoItems, createItem, updateItem] = useTodoState();
+  const [keyword, setKeyword] = useState<string>("");
+  const [showingDone, setShowingDone] = useState<boolean>(true);
 
   const filteredTodoItems = todoItems.filter((item) => {
     if (!showingDone && item.done) return false;
