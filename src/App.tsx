@@ -9,6 +9,7 @@ export type TodoItem = {
 type TodoListItemProps = {
   item: TodoItem;
   onCheck: (checked: boolean) => void;
+  onDelete: () => void;
 };
 
 type ValueViewerProps = {
@@ -35,7 +36,7 @@ function CreateTodoForm({ onSubmit }: CreateTodoFormProps) {
   );
 }
 
-function TodoListItem({ item, onCheck }: TodoListItemProps) {
+function TodoListItem({ item, onCheck, onDelete }: TodoListItemProps) {
   return (
     <div className="TodoItem">
       <input
@@ -46,6 +47,9 @@ function TodoListItem({ item, onCheck }: TodoListItemProps) {
       <p style={{ textDecoration: item.done ? "line-through" : "none" }}>
         {item.text}
       </p>
+      <button className="button-small" onClick={() => onDelete()}>
+        ❌
+      </button>
     </div>
   );
 }
@@ -56,32 +60,48 @@ function ValueViewer({ value }: ValueViewerProps) {
   );
 }
 
+function saveTodoListItems({ value }: ValueViewerProps) {
+  const saveData = JSON.stringify(value["todoItems"], undefined, 2);
+  localStorage.setItem("rawData", saveData);
+}
+
+function localTodoListItems() {
+  const loadData = localStorage.getItem("rawData") ?? undefined;
+  if (loadData === undefined) {
+    return [];
+  } else {
+    return JSON.parse(loadData);
+  }
+}
+
 const INITIAL_TODO: TodoItem[] = [
-  { id: 1, text: "todo-item-1", done: false },
-  { id: 2, text: "todo-item-2", done: true },
 ];
 
 const generateId = () => Date.now();
 
 const useTodoState = () => {
-  const [todoItems, setTodoItems] = useState(INITIAL_TODO);
+  const [todoItems, setTodoItems] = useState(localTodoListItems ?? INITIAL_TODO);
   const createItem = (text: string) => {
     setTodoItems([...todoItems, {id: generateId(), text, done: false}]);
   };
   const updateItem = (newItem: TodoItem) => {
     setTodoItems(
-      todoItems.map((item) => (item.id === newItem.id ? newItem : item))
+      todoItems.map((item: TodoItem) => (item.id === newItem.id ? newItem : item))
     );
   };
-  return [todoItems, createItem, updateItem] as const;
+  const deleteItem = (id: number) => {
+    setTodoItems(todoItems.filter((item: TodoItem) => item.id !== id))
+  }
+  saveTodoListItems({ value: { todoItems } });
+  return [todoItems, createItem, updateItem, deleteItem] as const;
 };
 
 export default function App() {
-  const [todoItems, createItem, updateItem] = useTodoState();
+  const [todoItems, createItem, updateItem, deleteItem] = useTodoState();
   const [keyword, setKeyword] = useState<string>("");
   const [showingDone, setShowingDone] = useState<boolean>(true);
 
-  const filteredTodoItems = todoItems.filter((item) => {
+  const filteredTodoItems = todoItems.filter((item: TodoItem) => {
     if (!showingDone && item.done) return false;
     return item.text.includes(keyword);
   });
@@ -108,13 +128,14 @@ export default function App() {
         <div className="dimmed">There is no TODO</div>
       ) : (
         <div className="App_todo-list">
-          {filteredTodoItems.map((item) => (
+          {filteredTodoItems.map((item: TodoItem) => (
             <TodoListItem
               key={item.id}
               item={item}
               onCheck={(checked) => {
                 updateItem({ ...item, done: checked });
               }}
+              onDelete={() => deleteItem(item.id)}
             />
           ))}
         </div>
