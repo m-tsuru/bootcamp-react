@@ -1,33 +1,58 @@
 import { useState } from "react";
 
-function TextInput() {
-  const [text, setText] = useState("");
+export type TodoItem = {
+  id: number;
+  text: string;
+  done: boolean;
+}
+
+type TodoListItemProps = {
+  item: TodoItem;
+}
+
+function TodoListItem({ item }: TodoListItemProps) {
   return (
-    <div>
-      <input type="text" value={text} onChange={(event) => setText(event.target.value)}/>
-      <p>input: {text}</p>
+    <div className="TodoItem">
+      <p style = {{ textDecoration: item.done ? "line-through" : "none" }}>
+        { item.text }
+      </p>
     </div>
   );
 }
 
-function ListFilter() {
-  const [text, setText] = useState("");
-  const members = ["asa-taka", "yamada", "suzuki"];
-  const filteredMembers = members.filter((member) => member.includes(text));
-  return (
-    <div>
-      <input type="text" value={text} onChange={(event) => setText(event.target.value)} />
-      {filteredMembers.map((member) => (
-        <p key={member}>{member}</p>
-      ))}
-    </div>
-  );
-}
+const INITIAL_TODO: TodoItem[] = [
+  {id: 1, text: "todo-item-1", done: false},
+  {id: 2, text: "todo-item-2", done: true}
+]
 
 export default function App() {
+  const todoItems = INITIAL_TODO;
+  const [keyword, setKeyword] = useState<string>("");
+
+  const filteredTodoItems = todoItems.filter((item) => {
+    return item.text.includes(keyword);
+  });
+
   return (
     <div className="App">
-      <ListFilter />
-    </div>
-  );
+      <div className="App_todo-list-control">
+        <h1>ToDo</h1>
+        <input
+          type="text"
+          placeholder="Filter" 
+          value={keyword} 
+          onChange={(event) => setKeyword(event.target.value)}
+        />
+      </div>
+    { filteredTodoItems.length === 0 ? (
+      <div className="dimmed">There is no TODO</div>
+    ) : (
+      <div className="App_todo-list">
+        {filteredTodoItems.map((item) => (
+          <TodoListItem key={item.id} item={item} />
+        ))}
+      </div>
+    )}
+  </div>
+  )
 }
